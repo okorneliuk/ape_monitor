@@ -64,7 +64,7 @@ krakenWs.onopen = () => {
     method: 'subscribe',
     params: {
       channel: 'book',
-      symbol: ['APE/USDT'],
+      symbol: ['JUP/USD'],
       depth: 10,
     },
   }));
@@ -91,7 +91,7 @@ const coinbaseWs = new WebSocket('wss://advanced-trade-ws.coinbase.com');
 coinbaseWs.onopen = () => {
   coinbaseWs.send(JSON.stringify({
     type: "subscribe",
-    product_ids: ["APE-USDC"],
+    product_ids: ["JUPITER-USDC"],
     channel: "level2",
   }));
 };
