@@ -116,7 +116,7 @@ function chart() {
     // Snapshot або Changed
     if (
         msg.content.dataType === "Snapshot" ||
-        msg.content.dataType === "Changed"
+        msg.content.dataType === "changed"
     ) {
       const asks = msg.content.data[0].asks;
 

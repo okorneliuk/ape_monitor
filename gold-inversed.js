@@ -106,9 +106,11 @@ function chartInversed() {
 
     if (!msg?.content?.data) return;
 
+    console.log(msg);
+
     if (
         msg.content.dataType === "Snapshot" ||
-        msg.content.dataType === "Changed"
+        msg.content.dataType === "changed"
     ) {
       const bids = msg.content.data[0].bids;
 
