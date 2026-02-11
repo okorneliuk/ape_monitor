@@ -51,6 +51,9 @@ function chartInversed() {
 
   function tryUpdate() {
     if (binanceAsk !== null && edgexBid !== null) {
+      document.getElementById('b-ask').textContent = binanceAsk;
+      document.getElementById('e-bid').textContent = edgexBid;
+
       const ratio = binanceAsk / (edgexBid * edgexMultiplier);
       updateCandle(ratio);
     }

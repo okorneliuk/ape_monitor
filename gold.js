@@ -52,6 +52,8 @@ function chart() {
 
   function tryUpdate() {
     if (binanceBid !== null && edgexAsk !== null) {
+      document.getElementById('b-bid').textContent = binanceBid;
+      document.getElementById('e-ask').textContent = edgexAsk;
 
       const adjustedBinance = binanceBid;
       const adjustedEdgex = edgexAsk * edgexMultiplier;
