@@ -48,7 +48,7 @@ function chart() {
     }
   }
 
-  const edgexMultiplier = 50;
+  const edgexMultiplier = 50/0.9523;
 
   function tryUpdate() {
     if (binanceBid !== null && edgexAsk !== null) {
