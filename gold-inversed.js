@@ -6,14 +6,20 @@ function chartInversed() {
       document.getElementById("chart-inversed"),
       {
         layout: {
-          background: { color: "#9a8000" },
+          background: { color: "#000000" },
           textColor: "#00284e",
         },
         timeScale: { timeVisible: true, secondsVisible: true },
       }
   );
 
-  const series = chart.addSeries(LightweightCharts.CandlestickSeries);
+  const series = chart.addSeries(LightweightCharts.CandlestickSeries, {
+    priceFormat: {
+      type: 'price',
+      precision: 4,
+      minMove: 0.0001,
+    },
+  });
 
   let binanceAsk = null;
   let edgexBid = null;

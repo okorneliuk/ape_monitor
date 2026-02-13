@@ -7,14 +7,20 @@ function chart() {
       document.getElementById("chart"),
       {
         layout: {
-          background: {color: "#00284e"},
+          background: {color: "#2b2b2b"},
           textColor: "#9a8000",
         },
         timeScale: {timeVisible: true, secondsVisible: true},
       }
   );
 
-  const series = chart.addSeries(LightweightCharts.CandlestickSeries);
+  const series = chart.addSeries(LightweightCharts.CandlestickSeries, {
+    priceFormat: {
+      type: 'price',
+      precision: 4,
+      minMove: 0.0001,
+    },
+  });
 
   let binanceBid = null;
   let edgexAsk = null;
