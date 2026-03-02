@@ -1,18 +1,452 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>[APE] Kraken vs Coinbase Ratio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ratio Chart Builder</title>
   <style>
-    body { margin: 0; background:#0f172a; }
-    #chart { height: 100vh; }
+    :root {
+      color-scheme: dark;
+      --bg: #0b1220;
+      --panel: #111b34;
+      --line: #263657;
+      --text: #dbe4ff;
+      --muted: #9ab0de;
+      --accent: #4ea1ff;
+      --danger: #ff8f8f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(1200px 500px at 20% -10%, #1e315e 0%, var(--bg) 60%);
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, #152444 0%, var(--panel) 100%);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0.4px;
+    }
+
+    .muted { color: var(--muted); }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .source {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.12);
+      display: grid;
+      gap: 10px;
+    }
+
+    .row {
+      display: grid;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    select,
+    input,
+    button {
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #0b1428;
+      color: var(--text);
+      padding: 0 10px;
+      font: inherit;
+    }
+
+    .inline {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    button {
+      cursor: pointer;
+      background: #102448;
+      border-color: #355287;
+    }
+
+    button.primary {
+      background: linear-gradient(180deg, #2669c6 0%, #1a4c92 100%);
+      border-color: #518ee3;
+      font-weight: 600;
+    }
+
+    .footer {
+      display: grid;
+      gap: 10px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    #status { min-height: 18px; }
+    .err { color: var(--danger); }
+
+    #urlOut {
+      width: 100%;
+      height: 40px;
+      background: #09101f;
+      border-color: #2f3f61;
+    }
+
+    @media (max-width: 900px) {
+      body { padding: 12px; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <div id="chart"></div>
+  <div class="wrap">
+    <div class="panel">
+      <h1>Universal Ratio Chart Builder</h1>
+      <div class="muted">Select both sources, choose pairs, optional ratio, then open <code>draw.html</code>.</div>
+    </div>
 
-  <!-- Lightweight Charts -->
-  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-  <script src="app.js"></script>
+    <div class="panel grid-2">
+      <section class="source" id="leftSource">
+        <strong>Left side (numerator)</strong>
+        <div class="row">
+          <label for="ex1">Exchange</label>
+          <select id="ex1">
+            <option value="kraken">Kraken</option>
+            <option value="coinbase">Coinbase</option>
+            <option value="binance">Binance Futures</option>
+            <option value="edgex">EdgeX</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <label for="side1">Side</label>
+          <select id="side1">
+            <option value="bid" selected>bid</option>
+            <option value="ask">ask</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <label for="pair1">Pair (loaded from exchange)</label>
+          <div class="inline">
+            <select id="pair1"></select>
+            <button type="button" data-reload="1">Reload</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <label for="pair1Manual">Custom pair/contract id (optional override)</label>
+          <input id="pair1Manual" placeholder="e.g. APE/USDT or 10000245" />
+        </div>
+      </section>
+
+      <section class="source" id="rightSource">
+        <strong>Right side (denominator)</strong>
+        <div class="row">
+          <label for="ex2">Exchange</label>
+          <select id="ex2">
+            <option value="kraken">Kraken</option>
+            <option value="coinbase" selected>Coinbase</option>
+            <option value="binance">Binance Futures</option>
+            <option value="edgex">EdgeX</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <label for="side2">Side</label>
+          <select id="side2">
+            <option value="bid">bid</option>
+            <option value="ask" selected>ask</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <label for="pair2">Pair (loaded from exchange)</label>
+          <div class="inline">
+            <select id="pair2"></select>
+            <button type="button" data-reload="2">Reload</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <label for="pair2Manual">Custom pair/contract id (optional override)</label>
+          <input id="pair2Manual" placeholder="e.g. APE-USDC or 10000245" />
+        </div>
+      </section>
+    </div>
+
+    <div class="panel footer">
+      <div class="grid-2">
+        <div class="row">
+          <label for="ratio">Ratio (optional, default 1:1)</label>
+          <input id="ratio" placeholder="e.g. 0.9523:50" />
+        </div>
+        <div class="row">
+          <label for="intervalMs">Candle interval ms (optional, default 1000)</label>
+          <input id="intervalMs" placeholder="1000" />
+        </div>
+      </div>
+
+      <div id="status" class="muted"></div>
+
+      <div class="actions">
+        <button id="openBtn" class="primary" type="button">Open Chart</button>
+      </div>
+
+      <input id="urlOut" readonly />
+    </div>
+  </div>
+
+  <script>
+    const EXCHANGE_LOADERS = {
+      kraken: loadKrakenPairs,
+      coinbase: loadCoinbasePairs,
+      binance: loadBinancePairs,
+      edgex: loadEdgeXPairs,
+    };
+
+    const pairCache = new Map();
+
+    const ex1 = document.getElementById('ex1');
+    const ex2 = document.getElementById('ex2');
+    const pair1 = document.getElementById('pair1');
+    const pair2 = document.getElementById('pair2');
+
+    const side1 = document.getElementById('side1');
+    const side2 = document.getElementById('side2');
+
+    const pair1Manual = document.getElementById('pair1Manual');
+    const pair2Manual = document.getElementById('pair2Manual');
+
+    const ratio = document.getElementById('ratio');
+    const intervalMs = document.getElementById('intervalMs');
+
+    const statusEl = document.getElementById('status');
+    const urlOut = document.getElementById('urlOut');
+
+    const openBtn = document.getElementById('openBtn');
+
+    document.querySelector('[data-reload="1"]').addEventListener('click', () => populatePairs(1, true));
+    document.querySelector('[data-reload="2"]').addEventListener('click', () => populatePairs(2, true));
+
+    ex1.addEventListener('change', () => populatePairs(1));
+    ex2.addEventListener('change', () => populatePairs(2));
+
+    openBtn.addEventListener('click', () => {
+      try {
+        const url = buildUrl();
+        urlOut.value = url;
+        window.location.href = url;
+      } catch (err) {
+        setStatus(err.message || String(err), true);
+      }
+    });
+
+    init();
+
+    async function init() {
+      await Promise.all([populatePairs(1), populatePairs(2)]);
+      updatePreviewUrl();
+      setStatus('Ready.', false);
+    }
+
+    async function populatePairs(which, forceReload) {
+      const exEl = which === 1 ? ex1 : ex2;
+      const pairEl = which === 1 ? pair1 : pair2;
+      const exchange = exEl.value;
+
+      pairEl.disabled = true;
+      pairEl.innerHTML = '';
+      addOption(pairEl, 'Loading...', '');
+
+      try {
+        const pairs = await getPairs(exchange, !!forceReload);
+        pairEl.innerHTML = '';
+
+        if (!pairs.length) {
+          addOption(pairEl, 'No pairs loaded', '');
+          return;
+        }
+
+        for (const p of pairs) {
+          addOption(pairEl, p.label, p.value);
+        }
+
+        autoSelect(pairEl, exchange, which);
+        updatePreviewUrl();
+      } catch (err) {
+        pairEl.innerHTML = '';
+        addOption(pairEl, 'Failed to load, use manual input', '');
+        setStatus(`${exchange}: ${err.message || err}`, true);
+      } finally {
+        pairEl.disabled = false;
+      }
+    }
+
+    function autoSelect(selectEl, exchange, which) {
+      const preferred = {
+        '1:kraken': 'APE/USDT',
+        '2:coinbase': 'APE-USDC',
+      }[`${which}:${exchange}`];
+
+      if (!preferred) return;
+      const option = [...selectEl.options].find((o) => o.value === preferred);
+      if (option) selectEl.value = preferred;
+    }
+
+    async function getPairs(exchange, forceReload) {
+      const key = exchange.toLowerCase();
+      if (!forceReload && pairCache.has(key)) {
+        return pairCache.get(key);
+      }
+
+      const loader = EXCHANGE_LOADERS[key];
+      if (!loader) {
+        throw new Error(`Unsupported exchange '${exchange}'.`);
+      }
+
+      const pairs = await loader();
+      pairCache.set(key, pairs);
+      return pairs;
+    }
+
+    async function loadKrakenPairs() {
+      const res = await fetch('https://api.kraken.com/0/public/AssetPairs');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const result = Object.values(json?.result || {})
+        .map((item) => item.wsname)
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b));
+      return result.map((p) => ({ label: p, value: p }));
+    }
+
+    async function loadCoinbasePairs() {
+      const res = await fetch('https://api.exchange.coinbase.com/products');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const result = (Array.isArray(json) ? json : [])
+        .map((item) => item.id)
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b));
+      return result.map((p) => ({ label: p, value: p }));
+    }
+
+    async function loadBinancePairs() {
+      const res = await fetch('https://fapi.binance.com/fapi/v1/exchangeInfo');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const result = (Array.isArray(json?.symbols) ? json.symbols : [])
+        .map((item) => item.symbol)
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b));
+      return result.map((p) => ({ label: p, value: p }));
+    }
+
+    async function loadEdgeXPairs() {
+      return [
+        { label: 'PAXGUSDT (10000245)', value: '10000245' },
+      ];
+    }
+
+    function buildUrl() {
+      const ex1Value = ex1.value;
+      const ex2Value = ex2.value;
+      const pair1Value = pickPair(pair1, pair1Manual);
+      const pair2Value = pickPair(pair2, pair2Manual);
+
+      if (!pair1Value) {
+        throw new Error('Left pair is empty. Select one or enter manual value.');
+      }
+      if (!pair2Value) {
+        throw new Error('Right pair is empty. Select one or enter manual value.');
+      }
+
+      const params = new URLSearchParams();
+      params.set('ex1', ex1Value);
+      params.set('pair1', pair1Value);
+      params.set('side1', side1.value);
+      params.set('ex2', ex2Value);
+      params.set('pair2', pair2Value);
+      params.set('side2', side2.value);
+
+      const ratioValue = ratio.value.trim();
+      if (ratioValue) {
+        params.set('ratio', ratioValue);
+      }
+
+      const intervalValue = intervalMs.value.trim();
+      if (intervalValue) {
+        params.set('intervalMs', intervalValue);
+      }
+
+      return `draw.html?${params.toString()}`;
+    }
+
+    function pickPair(selectEl, manualEl) {
+      const manual = manualEl.value.trim();
+      if (manual) return manual;
+      return selectEl.value || '';
+    }
+
+    function addOption(selectEl, label, value) {
+      const opt = document.createElement('option');
+      opt.textContent = label;
+      opt.value = value;
+      selectEl.appendChild(opt);
+    }
+
+    function setStatus(text, isError) {
+      statusEl.textContent = text;
+      statusEl.classList.toggle('err', !!isError);
+      statusEl.classList.toggle('muted', !isError);
+    }
+
+    function updatePreviewUrl() {
+      try {
+        urlOut.value = buildUrl();
+      } catch {
+        urlOut.value = '';
+      }
+    }
+
+    [ex1, ex2, side1, side2, pair1, pair2, pair1Manual, pair2Manual, ratio, intervalMs].forEach((el) => {
+      el.addEventListener('input', updatePreviewUrl);
+      el.addEventListener('change', updatePreviewUrl);
+    });
+  </script>
 </body>
 </html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Universal Ratio Chart</title>
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+
+    body {
+      margin: 0;
+      background: #0f172a;
+      color: #cbd5e1;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    #meta {
+      height: 64px;
+      box-sizing: border-box;
+      padding: 10px 14px;
+      border-bottom: 1px solid #1e293b;
+      background: #111b34;
+      display: grid;
+      gap: 4px;
+      align-content: center;
+      white-space: nowrap;
+      overflow-x: auto;
+    }
+
+    #chart {
+      height: calc(100vh - 64px);
+    }
+
+    .muted {
+      color: #94a3b8;
+    }
+
+    .error {
+      color: #fca5a5;
+    }
+  </style>
+</head>
+<body>
+  <div id="meta">
+    <div id="config"></div>
+    <div id="prices" class="muted"></div>
+  </div>
+  <div id="chart"></div>
+
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <script src="draw.js"></script>
+</body>
+</html>
