@@ -29,7 +29,7 @@
     },
     timeScale: {
       timeVisible: true,
-      secondsVisible: true,
+      secondsVisible: false,
     },
   });
 
@@ -37,6 +37,11 @@
     upColor: "#26a69a",
     downColor: "#ef5350",
     borderVisible: false,
+    priceFormat: {
+      type: 'price',
+      precision: 4,
+      minMove: 0.0001,
+    }
   });
 
   window.addEventListener("resize", () => {
@@ -51,6 +56,9 @@
   let leftPrice = null;
   let rightPrice = null;
   let currentCandle = null;
+  let latestResult = null;
+
+  startCandleScheduler();
 
   function tryUpdate() {
     pricesEl.textContent =
@@ -60,16 +68,14 @@
       return;
     }
 
-    const result = (leftPrice * ratio.left) / (rightPrice * ratio.right);
-    updateCandle(result);
+    latestResult = (leftPrice * ratio.left) / (rightPrice * ratio.right);
   }
 
-  function updateCandle(value) {
+  function updateCandle(value, now) {
     if (!Number.isFinite(value)) return;
 
-    const now = Date.now();
-    const bucket = Math.floor(now / candleInterval) * candleInterval;
-    const time = bucket / 1000;
+    const minuteStart = Math.floor(now / 60000) * 60000;
+    const time = minuteStart / 1000;
 
     if (!currentCandle || currentCandle.time !== time) {
       currentCandle = {
@@ -86,6 +92,23 @@
     }
 
     series.update(currentCandle);
+  }
+
+  function startCandleScheduler() {
+    scheduleNextTick();
+  }
+
+  function scheduleNextTick() {
+    const now = Date.now();
+    const minuteStart = Math.floor(now / 60000) * 60000;
+    const elapsed = now - minuteStart;
+    const remainder = elapsed % candleInterval;
+    const delay = remainder === 0 ? candleInterval : candleInterval - remainder;
+
+    setTimeout(() => {
+      updateCandle(latestResult, Date.now());
+      scheduleNextTick();
+    }, delay);
   }
 
   connectSource(left, (value) => {
