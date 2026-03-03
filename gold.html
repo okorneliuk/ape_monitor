@@ -1,30 +1,10 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
+  <script>window.location.replace("index.html");</script>
   <meta charset="UTF-8" />
   <title>[Gold] Binance vs edgeX Ratio</title>
-  <style>
-    body { margin: 0; background:#0f172a; }
-    #chart { height: 47.5vh; }
-    #chart-inversed { height: 47.5vh; }
-    #numbers { height: 5vh; color: #ffd700 }
-  </style>
 </head>
 <body>
-  <div id="chart"></div>
-  <div id="numbers">
-    ↑ [Binance bid] / [edgeX ask]: <span id="b-bid"></span> / <span id="e-ask"></span><br/>
-    ↓ [Binance ask] / [edgeX bid]: <span id="b-ask"></span> / <span id="e-bid"></span>
-  </div>
-  <div id="chart-inversed"></div>
-
-  <!-- Lightweight Charts -->
-  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-  <script src="gold.js"></script>
-  <script src="gold-inversed.js"></script>
-  <script>
-    chart();
-    chartInversed();
-  </script>
 </body>
 </html>
